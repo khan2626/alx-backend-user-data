@@ -51,12 +51,43 @@ def get_logger() -> logging.Logger:
 
 
 def get_db() -> mysql.connector.connection.MySQLConnection:
+     """it returns a connector to the database"""
      
+     username = environ.get('PERSONAL_DATA_DB_USERNAME', 'root')
+     password = environ.get('PERSONAL_DATA_DB_PASSWORD', '')
+     host = environ.get('PERSONAL_DATA_DB_HOST', 'localhost')
+     database = environ.get('PERSONAL_DATA_DB_NAME')
+
+     connection = mysql.connector.connection.MySQLConnection(user=username, 
+                                                             password=password, 
+                                                             host=host, 
+                                                             database=database)
+     
+     return connection
+
+
+def main():
+    """
+    Main function to retrieve user data from database and log to console
+    """
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users;")
+    field_names = [i[0] for i in cursor.description]
+
+    logger = get_logger()
+
+    for row in cursor:
+        str_row = ''.join(f'{f}={str(r)}; ' for r, f in zip(row, field_names))
+        logger.info(str_row.strip())
+
+    cursor.close()
+    db.close()
 
 
 class RedactingFormatter(logging.Formatter):
     """ Redacting Formatter class
-        """
+    """
 
     REDACTION = "***"
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
@@ -64,6 +95,9 @@ class RedactingFormatter(logging.Formatter):
 
     
     def __init__(self, fields: List[str]):
+        """constructor mmethod for Redacting class
+        """
+        
         super(RedactingFormatter, self).__init__(self.FORMAT)
         self.fields = fields
 
@@ -75,12 +109,6 @@ class RedactingFormatter(logging.Formatter):
         record.msg = filter_datum(self.fields, self.REDACTION, 
                                   record.getMessage(), self.SEPARATOR)
         return super(RedactingFormatter, self).format(record)
-    
-    
-    
-        
 
-
-        
-
-
+if __name__ == '__main__':
+     main()

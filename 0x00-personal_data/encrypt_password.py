@@ -20,10 +20,12 @@ def is_valid(hashed_password: bytes, password: str) -> bool:
     """Checks if password matches
     """
 
+    valid = False
+    
     if bcrypt.checkpw(password.encode(), hashed_password):
-        return True
-    else:
-        return False
+        valid = True
+    
+    return valid
 
 
 
