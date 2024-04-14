@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """password encryption and validation module
 """
 import bcrypt
