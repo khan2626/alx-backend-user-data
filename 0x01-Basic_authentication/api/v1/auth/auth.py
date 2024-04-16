@@ -2,8 +2,9 @@
 """It manages API authentication
 """
 
+from typing import List, TypeVar
 from flask import request
-from typing import List, Typevar
+
 
 
 class Auth():
@@ -26,18 +27,24 @@ class Auth():
             elif ex_path[-1] == '*':
                 if path.startswith(ex_path[:-1]):
                     return False
-
+        return True
         
     
     def authorization_header(self, request=None) -> str:
         """Gets authorization header from request
         """
-        return None
+        if request is None:
+            return None
+        header = request.headers.get('Auhorization')
+
+        if header is None:
+            return None
+        return header
     
-    def authorization_header(self, request=None) -> str:
-        """Returns current user
+    def current_user(self, request=None) -> TypeVar('User'):
+        """_summary_
         """
 
-        return False
+        return None
     
 
