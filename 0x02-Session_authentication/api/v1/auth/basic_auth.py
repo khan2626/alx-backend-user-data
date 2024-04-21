@@ -5,6 +5,8 @@ from api.v1.auth.auth import Auth
 from typing import TypeVar
 import base64
 
+from models.user import User
+
 class BasicAuth(Auth):
     """It inherits from Auth
     """
@@ -22,13 +24,25 @@ class BasicAuth(Auth):
         token = authorization_header.split(' ')[-1]
         return token
     
-    def extract_user_credentials(
-            self, decoded_base64_authorization_header: str) -> (str, str):
-        """_summary_
+    def decode_base64_authorization_header(
+            self, base64_authorization_header: str) -> str:
+        """base64_authorization_header (str)
+        """
+        if base64_authorization_header is None:
+            return None
+        if not isinstance(base64_authorization_header, str):
+            return None
 
-        Args:
-                                        self (_type_): _description_
-                                        str (_type_): _description_
+        try:
+            item_to_decode = base64_authorization_header.encode('utf-8')
+            decoded = base64.b64decode(item_to_decode)
+            return decoded.decode('utf-8')
+        except Exception:
+            return None
+    
+    def extract_user_credentials(
+            self, decoded_base64_authorization_header: str) -> (str, str): # type: ignore
+        """Extracts users' credentials
         """
         if decoded_base64_authorization_header is None:
             return (None, None)
@@ -63,7 +77,7 @@ class BasicAuth(Auth):
         except Exception:
             return None
 
-    def current_user(self, request=None) -> TypeVar('User'):
+    def current_user(self, request=None) -> TypeVar('User'): # type: ignore
         """_summary_
         """
         auth_header = self.authorization_header(request)
