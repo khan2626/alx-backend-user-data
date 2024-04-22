@@ -11,7 +11,7 @@ from uuid import uuid4
 
 
 class SessionAuth(Auth):
-    """_summary_
+    """Session authentication class
     """
     user_id_by_session_id = {}
 
@@ -33,7 +33,7 @@ class SessionAuth(Auth):
         return self.user_id_by_session_id.get(session_id)
 
     def current_user(self, request=None):
-        """It returns current user
+        """It returns current user instance
         """
         session_cookie = self.session_cookie(request)
         user_id = self.user_id_for_session_id(session_cookie)
