@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""password hashing module
+"""password hashing and user authentication module
 """
 
 import bcrypt
 from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
+
+from typing import Union
 
 
 def _hash_password(password: str) -> bytes:
@@ -26,7 +28,7 @@ class Auth:
     def __init__(self):
         self._db = DB()
 
-    def register_user(self, email: str, password: str) -> User:
+    def register_user(self, email: str, password: str) -> Union[None, User]:
         """take mandatory email and password string arguments 
         and return a User object.
         If a user already exist with the passed email, raise a 
@@ -34,10 +36,25 @@ class Auth:
         If not, hash the password with _hash_password, save the user 
         to the database using self._db and return the User object.
         """
-
+        
         try:
             self._db.find_user_by(email=email)
         except NoResultFound:
             return self._db.add_user(email, _hash_password(password))
         else:
             raise ValueError('User {} already exists'.format(email))
+
+
+    def valid_login(self, email: str, password: str) -> bool:
+        """it validates user credentials
+        """
+
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            return False
+        return bcrypt.checkpw(password.encode('utf-8'), user.hashed_password) 
+
+        
+        
+       
